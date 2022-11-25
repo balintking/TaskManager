@@ -3,12 +3,35 @@
 #include "session.h"
 #include "navigation.h"
 
+static void display_login(void){
+    
+    printf("[1] username: ");
+    printf("%s", session.user);
+    printf("\n");
+    
+    printf("[2] password: ");
+    printf("%s", session.password);
+    printf("\n");
+    printf("\n");
+    
+    printf("[3] Login");
+    printf("\n");
+    printf("\n");
+
+}
+
+void page_dashboard(void){
+    
+}
+
 /*displays the contents of the current page*/
-void display() {
-    switch(page){
+void display(Page screen) {
+    
+    system("clear");
+    
+    switch(screen){
         case login:
-            printf("[1] username: ");
-            printf("[2] password: ");
+            display_login();
             break;
         case dashboard:
             break;
@@ -25,6 +48,4 @@ void display() {
     }
 }
 
-void page_login(void){
-    
-}
+

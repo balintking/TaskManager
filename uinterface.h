@@ -3,6 +3,15 @@
 
 #include <stdio.h>
 
-void display (void);
+typedef enum Page{
+    login,
+    dashboard,
+    tasks,
+    single,
+    newTask,
+    logout
+} Page;
+
+void display(Page screen);
 
 #endif

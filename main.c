@@ -4,11 +4,12 @@
 
 int main() {
 
-    start_session();
-
-    while(activeSession) {
-        display();
-        get_input();
+    Page next_page;
+    next_page = start_session();
+    
+    while (activeSession) {
+        display(next_page);
+        next_page = navigate(next_page);
     }
 
     return 0;
