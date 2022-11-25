@@ -11,20 +11,18 @@ static int get_choise(void) {
         scanf("%c", &choise);
     } while (choise < '0' || choise > '9' || choise == '\n');
     
-    if (choise != EOF && choise >= '0' && choise <= '9') {
-        return choise;
-    }
-    else {
-        return -1;
-    }
+    return choise;
 }
 
 /*gets and executes user command based on the current window*/
 Page navigate(Page screen){
     
-    int option = get_choise();
-    
-    if (option >= '0' && option <= '9') {
+    char option;
+    do {
+        scanf("%c", &option);
+    } while (option == '\n');
+  
+    if (option != EOF && option >= '0' && option <= '9') {
         switch(screen){
             case login:
                 switch(option) {
@@ -39,11 +37,12 @@ Page navigate(Page screen){
                             return dashboard;
                         }
                         else {
-                            printf("login unsuccessful");
                             return screen;
                         }
+                    default:
+                        strcpy(session.log, "Invalid input!");
+                        return screen;
                 }
-                return screen;
             case dashboard:
                 return screen;
             case tasks:
@@ -59,7 +58,7 @@ Page navigate(Page screen){
         }
     }
     else {
-        printf("[%c]invalid input\n", option);
+        strcpy(session.log, "Invalid input!");
         return screen;
     }
 }

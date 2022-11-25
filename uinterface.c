@@ -16,12 +16,16 @@ static void display_login(void){
     
     printf("[3] Login");
     printf("\n");
-    printf("\n");
 
 }
 
 void page_dashboard(void){
     
+}
+
+void display_log(void) {
+    printf("\n%s\n", session.log);
+    session.log[0] = '\0';
 }
 
 /*displays the contents of the current page*/
@@ -46,6 +50,10 @@ void display(Page screen) {
         default:
             break;
     }
+    
+    display_log();
+    
+    printf("OPTION: ");
 }
 
 

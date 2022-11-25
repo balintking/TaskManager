@@ -9,6 +9,7 @@
 typedef struct Session {
     char user[11];
     char password[11];
+    char log[200];
 } Session;
 
 extern bool activeSession;
