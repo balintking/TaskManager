@@ -24,10 +24,20 @@ void get_password(void) {
     scanf("%s", session.password);
 }
 
+bool dir_init(char *dirname) {
+    struct stat st = {0};
+    
+    if (stat(dirname, &st) == -1) {
+        if(mkdir(dirname, 0700) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool file_init(char *fname) {
     FILE *file = fopen(fname, "a");
     if (file==NULL) {
-        strcpy(session.log, "[error:can't open user file]");
         return false;
     }
     
@@ -50,15 +60,19 @@ static bool register_user(char *fname) {
 bool login_user(void) {
     if (strcmp(session.user, "")!=0 && strcmp(session.password, "")!=0) {
         char filename[] = "users.txt";
-        file_init(filename);
+
+        if (!file_init(filename)) {
+            strcpy(session.log, "[error:can't open user file]");
+            return false;
+        }
         
         FILE *file = fopen(filename, "r");
-        if (file==NULL) {
+        if (file == NULL) {
             strcpy(session.log, "[error:can't open user file]");
             return false;
         }
         /*not validating user input*/
-        char u[11], p[11];
+        char u[LEN_UNAME+1], p[11];
         while (fscanf(file, " user:%s\npw:%s ", u, p)==2) {
             if (strcmp(u, session.user) == 0) {
                 if (strcmp(p, session.password)==0) {

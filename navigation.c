@@ -4,17 +4,6 @@
 #include "uinterface.h"
 #include "datahandler.h"
 
-static int get_choise(void) {
-    
-    char choise;
-    
-    do {
-        scanf("%c", &choise);
-    } while (choise < '0' || choise > '9' || choise == '\n');
-    
-    return choise;
-}
-
 /*gets and executes user command based on the current window*/
 Page navigate(Page screen){
     
