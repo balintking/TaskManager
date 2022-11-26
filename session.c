@@ -72,7 +72,6 @@ bool login_user(void) {
                     return false;
                 }
             }
-            
         }
         /*create new user*/
         if(register_user(filename)) {

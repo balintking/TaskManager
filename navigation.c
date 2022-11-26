@@ -2,6 +2,7 @@
 #include "navigation.h"
 #include "session.h"
 #include "uinterface.h"
+#include "datahandler.h"
 
 static int get_choise(void) {
     
@@ -34,6 +35,7 @@ Page navigate(Page screen){
                         return screen;
                     case '3':
                         if(login_user()) {
+                            load_data();
                             return dashboard;
                         }
                         else {

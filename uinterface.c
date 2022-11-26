@@ -19,7 +19,7 @@ static void display_login(void){
 
 }
 
-void page_dashboard(void){
+static void display_dashboard(void){
     
 }
 
@@ -38,6 +38,7 @@ void display(Page screen) {
             display_login();
             break;
         case dashboard:
+            display_dashboard();
             break;
         case tasks:
             break;
