@@ -16,6 +16,12 @@ void end_session() {
     activeSession = false;
 }
 
+void clear_session(void) {
+    session.user[0] = '\0';
+    session.password[0] = '\0';
+    free(session.task);
+}
+
 void get_username(void) {
     scanf("%s", session.user);
 }

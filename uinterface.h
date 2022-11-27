@@ -2,6 +2,9 @@
 #define UINTERFACE_H
 
 #include <stdio.h>
+#include <ctype.h>
+
+#include "datahandler.h"
 
 typedef enum Page{
     login,

@@ -25,6 +25,7 @@ typedef struct Session {
     char password[11];
     char log[200];
     Task *data;
+    Task *task;
 } Session;
 
 extern bool activeSession;
@@ -32,6 +33,7 @@ extern Session session;
 
 Page start_session(void);
 void end_session(void);
+void clear_session(void);
 
 void get_username(void);
 void get_password(void);

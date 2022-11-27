@@ -10,6 +10,7 @@ int main() {
     while (activeSession) {
         display(next_page);
         next_page = navigate(next_page);
+        
     }
 
     return 0;
