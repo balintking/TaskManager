@@ -3,6 +3,8 @@
 #include "session.h"
 #include "navigation.h"
 
+#include "debugmalloc.h"
+
 void display_log(void) {
     printf("%s\n", session.log);
     session.log[0] = '\0';
@@ -31,17 +33,27 @@ static void display_dashboard(void){
     printf("!\n");
     printf("\n\n");
     
-    printf("Your Tasks for today [progress_bar] 100%% Done\n");
+    int count_today, count_today_done;
+    double percent = percent_today(&count_today, &count_today_done);
+    
+    if (percent == -1) {
+        printf("You don't have any Tasks for today");
+    } else {
+        printf("Your Tasks for today %d/%d [", count_today_done, count_today);
+        for (int i = 1; i <= 10; i++) {
+            (i <= percent/10) ? printf("#") : printf(" ");
+        }
+        printf("] %.0f%% Done\n", percent);
+    }
     printf("\n");
-    printf("Next Task: [3] [next_task]\n");
+    
+    if(find_next_task()) {
+        printf("Next Task:\t[3] %s\n\t\t    %02d.%02d.%02d.\n\t\t    %s\n", session.task->name, session.task->due.y, session.task->due.m, session.task->due.d, session.task->cat);
+    }
     printf("\n\n\n\n");
     
     printf("[1] Create New Task\t[2] See All Tasks\t\t\t[9] Log Out\n");
     printf("\n");
-    
-    if (session.data != NULL) {
-        printf("%s %d.%d.%d. %s %s", session.data->name, session.data->due.y, session.data->due.m, session.data->due.d, session.data->cat, session.data->dscr);
-    }
     
 }
 
@@ -50,13 +62,16 @@ static void display_tasks(void){
     printf("YOUR TASKS");
     printf("\n\n");
     
-    print_tasks();
-    
-    printf("[0] Back\t[8] Next Page\t[9] Previous Page\n");
+    if (session.data != NULL) {
+        print_tasks();
+    }
+    printf("\n\n");
+
+    printf("[0] Back\n");
     printf("\n");
 }
 
-static void display_newTask(void){
+static void display_single(void){
     printf("\n");
     printf("CREATE NEW TASK");
     printf("\n\n");
@@ -75,7 +90,7 @@ static void display_newTask(void){
     printf("\n");
     printf("\n");
     
-    printf("[0] Save\t[9] Cancel\n");
+    printf("[0] Save\t[9] Remove\n");
     printf("\n");
 
 }
@@ -113,9 +128,10 @@ void display(Page screen) {
             display_tasks();
             break;
         case single:
+            display_single();
             break;
         case newTask:
-            display_newTask();
+            display_single();
             break;
         case logout:
             display_logout();

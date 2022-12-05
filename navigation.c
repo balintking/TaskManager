@@ -4,6 +4,8 @@
 #include "uinterface.h"
 #include "datahandler.h"
 
+#include "debugmalloc.h"
+
 /*gets and executes user command based on the current window*/
 Page navigate(Page screen){
     
@@ -37,7 +39,7 @@ Page navigate(Page screen){
             case dashboard:
                 switch(option) {
                     case '1':
-                        session.task = init_task();
+                        session.task = task_init();
                         return newTask;
                     case '2':
                         return tasks;
@@ -77,9 +79,11 @@ Page navigate(Page screen){
                 switch(option) {
                     case '0':
                         if (valid_task(session.task)) {
-                            if (append_task(session.data, session.task)) {
+                            Task *new_start = add_task(session.data, session.task);
+                            free(session.task);
+                            if (new_start != NULL) {
+                                session.data = new_start;
                                 strcpy(session.log, "Task Saved Successfully");
-                                load_data();
                                 return dashboard;
                             }
                             strcpy(session.log, "Failed to Save Task");
@@ -89,10 +93,11 @@ Page navigate(Page screen){
                             return screen;
                         }
                     case '1':
-                        scanf("%s", session.task->name);
+                        printf("(Maximum 50 characters) ");
+                        scanf(" %[^\n]s", session.task->name);
                         return screen;
                     case '2':
-                        printf("(YYYY.MM.DD.)");
+                        printf("(YYYY.MM.DD.) ");
                         int iny, inm, ind;
                         if (scanf("%d.%d.%d.", &iny, &inm, &ind) == 3) {
                             session.task->due.y = iny;
@@ -100,17 +105,30 @@ Page navigate(Page screen){
                             session.task->due.d = ind;
                         } else {
                             strcpy(session.log, "Invalid input!");
-                            return screen;
                         }
                         return screen;
                     case '3':
-                        scanf("%s", session.task->cat);
+                        printf("(Maximum 25 characters) ");
+                        char incat[LEN_T_CAT];
+                        scanf(" %[^\n]s", incat);
+                        if (strchr(incat, '*') == NULL) {
+                            strcpy(session.task->cat, incat);
+                        } else {
+                            strcpy(session.log, "'*' character not supported");
+                        }
                         return screen;
                     case '4':
-                        scanf("%s", session.task->dscr);
+                        printf("(Maximum 200 characters) ");
+                        char indscr[LEN_T_DSCR];
+                        scanf(" %[^\n]s", incat);
+                        if (strchr(indscr, '*') == NULL) {
+                            strcpy(session.task->dscr, indscr);
+                        } else {
+                            strcpy(session.log, "'*' character not supported");
+                        }
                         return screen;
                     case '5':
-                        printf("(0 - No, 1 - Yes)");
+                        printf("(0 - No, 1 - Yes) ");
                         int indone;
                         scanf("%d", &indone);
                         if (indone == 0) {
@@ -123,6 +141,7 @@ Page navigate(Page screen){
                         }
                         return screen;
                     case '9':
+                        free(session.task);
                         return dashboard;
                     default:
                         strcpy(session.log, "Invalid input!");
@@ -132,11 +151,13 @@ Page navigate(Page screen){
             case logout:
                 switch(option) {
                     case '1':
-                        //remove session info
+                        //save and remove session info
+                        save_data();
                         clear_session();
                         return login;
                     case '2':
-                        //remove session info & quit
+                        //save, remove session info and quit
+                        save_data();
                         clear_session();
                         end_session();
                         return login;

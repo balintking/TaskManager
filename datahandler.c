@@ -1,23 +1,15 @@
 #include "datahandler.h"
 #include "session.h"
 
-/*
- Task name
- due date
- category
- description
- done
- */
+#include "debugmalloc.h"
 
-/*
- open file
- get liene
- store data in linked list
- */
 
-Task* init_task(void) {
+Task* task_init(void) {
     Task *task;
     task = (Task*) malloc(sizeof(Task));
+    if (task == NULL) {
+        return NULL;
+    }
     
     strcpy(task->name, "");
     task->due.y = 0;
@@ -30,6 +22,31 @@ Task* init_task(void) {
     return task;
 }
 
+
+//display
+
+void print_tasks(void) {
+    Task *pointer = session.data;
+    while (pointer != NULL) {
+        printf("-\n");
+        printf("title: %s\n", pointer->name);
+        printf("due: %02d.%02d.%02d.\n", pointer->due.y, pointer->due.m, pointer->due.d);
+        printf("cat: %s\n", pointer->cat);
+        printf("dscr: %s\n", pointer->dscr);
+        if (pointer->done) {
+            printf("done: 1\n");
+        } else {
+            printf("done: 0\n");
+        }
+        printf("-\n");
+        
+        pointer = pointer->next;
+    }
+}
+
+
+//add task
+
 bool valid_task(Task *task) {
     if (strcmp(task->name, "") != 0) {
         if (task->due.y !=0 && task->due.m !=0 && task->due.d !=0) {
@@ -39,85 +56,29 @@ bool valid_task(Task *task) {
     return false;
 }
 
-Task* insert_task(Task *data_start, Task *loadTask) {
-    Task *new;
-    new = (Task*) malloc(sizeof(Task));
+Task* add_task(Task *data_start, Task *newTask) {
+    Task *new = task_init();
     if (new == NULL) {
         return NULL;
     }
     
-    strcpy(new->name, loadTask->name);
-    new->due = loadTask->due;
-    strcpy(new->cat, loadTask->cat);
-    strcpy(new->dscr, loadTask->dscr);
-    new->done = loadTask->done;
+    strcpy(new->name, newTask->name);
+    new->due = newTask->due;
+    strcpy(new->cat, newTask->cat);
+    strcpy(new->dscr, newTask->dscr);
+    new->done = newTask->done;
     
     new->next = data_start;
     return new;
 }
 
-Task* load_task(FILE *savefile, bool *empty) {
-    Task *loadTask;
-    loadTask = (Task*) malloc(sizeof(Task));
-    if (loadTask == NULL) {
-        return NULL;
-    }
-    
-    if (fscanf(savefile, "%s\n", loadTask->name) != 1) {
-        *empty = true;
-        return NULL;
-    }
-    
-    fscanf(savefile, "%d.%d.%d.\n", &loadTask->due.y, &loadTask->due.m, &loadTask->due.d);
-    
-    fscanf(savefile, "%s\n", loadTask->cat);
-    
-    fscanf(savefile, "%s\n", loadTask->dscr);
-    
-    int loadDone;
-    fscanf(savefile, "%d\n", &loadDone);
-    if (loadDone == 1) {
-        loadTask->done = true;
-    }
-    else if (loadDone == 0) {
-        loadTask->done = false;
-    }
-    
-    return loadTask;
-}
 
-FILE *open_savefile(char *mode) {
-    // mac has read-only permission
-    /*
-    char filename[11+LEN_UNAME+4+1] = "/savefiles/";
-    strcat(filename, session.user);
-    strcat(filename, ".txt");
-    
-    if (!dir_init("/savefiles")) {
-        strcpy(session.log, "[error:can't create directory | ");
-        strcat(session.log, strerror(errno));
-        strcat(session.log, "]");
-        strcat(session.log, filename);
-        return false;
-    }*/
-    char filename[LEN_UNAME+4+1] = "save_";
-    strcpy(filename, session.user);
-    strcat(filename, ".txt");
-    
-    if (!file_init(filename)) {
-        return NULL;
-    }
-    
-    FILE *savefile = fopen(filename, mode);
-    if (savefile == NULL) {
-        return NULL;
-    }
-    
-    return savefile;
-}
+//remove task
+
+
+//load
 
 bool load_data(void) {
-    
     FILE *savefile = open_savefile("r");
     if (savefile == NULL) {
         strcpy(session.log, "[error:can't open save file | ");
@@ -127,29 +88,23 @@ bool load_data(void) {
     }
     
     Task *data_start = NULL;
-    bool empty = false;
     
-    Task *loadTask = load_task(savefile, &empty);
-    if (empty) {
-        strcpy(session.log, "empty file");
-        return true;
-    }
-    if (loadTask == NULL && !(empty)) {
-        strcpy(session.log, "[error: failed to allocate memory | ");
-        strcat(session.log, strerror(errno));
-        strcat(session.log, "]");
-        return false;
-    }
-    while (loadTask != NULL) {
-        data_start = insert_task(data_start, loadTask);
-        free(loadTask);
-        loadTask = load_task(savefile, &empty);
-        if ((loadTask == NULL && !empty )|| data_start == NULL) {
-            strcpy(session.log, "[error: failed to allocate memory | ");
-            strcat(session.log, strerror(errno));
-            strcat(session.log, "]");
-            return false;
+    char dataLine[LEN_T_NAME+11+LEN_T_CAT+LEN_T_DSCR+1+6];
+    Task loadTask;
+    int numDone;
+    
+    while (fgets(dataLine, sizeof(dataLine), savefile) != NULL) {
+        sscanf(dataLine, "%[^\t]\t%d.%d.%d.\t%[^\t]\t%[^\t]\t%d\n", loadTask.name, &loadTask.due.y, &loadTask.due.m, &loadTask.due.d, loadTask.cat, loadTask.dscr, &numDone);
+        loadTask.done = (numDone == 1) ? true : false;
+        
+        if (strcmp(loadTask.cat, "*") == 0) {
+            strcpy(loadTask.cat, "");
         }
+        if (strcmp(loadTask.dscr, "*") == 0) {
+            strcpy(loadTask.dscr, "");
+        }
+        
+        data_start = add_task(data_start, &loadTask);
     }
     
     fclose(savefile);
@@ -158,45 +113,7 @@ bool load_data(void) {
 }
 
 
-bool append_task(Task *data_start, Task *newTask) {
-    FILE *savefile = open_savefile("a");
-    if (savefile == NULL) {
-        strcpy(session.log, "[error:can't open save file | ");
-        strcat(session.log, strerror(errno));
-        strcat(session.log, "]");
-        return false;
-    }
-    
-    fprintf(savefile, "%s\n", newTask->name);
-    fprintf(savefile, "%d.%d.%d.\n", newTask->due.y, newTask->due.m, newTask->due.d);
-    fprintf(savefile, "%s\n", newTask->cat);
-    fprintf(savefile, "%s\n", newTask->dscr);
-    if (newTask->done) {
-        fprintf(savefile, "1\n");
-    } else {
-        fprintf(savefile, "0\n");
-    }
-    
-    fclose(savefile);
-    return true;
-}
-
-void print_tasks(void) {
-    Task *pointer = session.data;
-    while (pointer != NULL) {
-        printf("%s\n", pointer->name);
-        printf("%d.%d.%d.\n", pointer->due.y, pointer->due.y, pointer->due.y);
-        printf("%s\n", pointer->cat);
-        printf("%s\n", pointer->dscr);
-        if (pointer->done) {
-            printf("1\n");
-        } else {
-            printf("0\n");
-        }
-        
-        pointer = pointer->next;
-    }
-}
+//save
 
 bool save_data(void) {
     FILE *savefile = open_savefile("w");
@@ -209,22 +126,108 @@ bool save_data(void) {
     
     Task *pointer = session.data;
     while (pointer != NULL) {
-        Task *temp = pointer->next;
-        
-        fprintf(savefile, "%s\n", pointer->name);
-        fprintf(savefile, "%d.%d.%d.\n", pointer->due.y, pointer->due.y, pointer->due.y);
-        fprintf(savefile, "%s\n", pointer->cat);
-        fprintf(savefile, "%s\n", pointer->dscr);
+        fprintf(savefile, "%s\t", pointer->name);
+        fprintf(savefile, "%d.%d.%d.\t", pointer->due.y, pointer->due.m, pointer->due.d);
+        if ((pointer->cat)[0] == '\0') {
+            fprintf(savefile, "*\t");
+        } else {
+            fprintf(savefile, "%s\t", pointer->cat);
+        }
+        if (pointer->dscr[0] == '\0') {
+            fprintf(savefile, "*\t");
+        } else {
+            fprintf(savefile, "%s\t", pointer->dscr);
+        }
         if (pointer->done) {
             fprintf(savefile, "1\n");
         } else {
             fprintf(savefile, "0\n");
         }
         
+        Task *next = pointer->next;
         free(pointer);
-        pointer = temp;
+        pointer = next;
     }
     
     fclose(savefile);
+    return true;
+}
+
+//others
+
+int compare_dates(Date d1, Date d2) {
+    if (d1.y < d2.y)
+        return -1;
+    else if (d1.y > d2.y)
+        return 1;
+    else {
+         if (d1.m<d2.m)
+              return -1;
+         else if (d1.m>d2.m)
+              return 1;
+         else {
+             if (d1.d<d2.d)
+                 return -1;
+             else if(d1.d>d2.d)
+                 return 1;
+             else
+                 return 0;
+         }
+    }
+}
+
+double percent_today(int *count_today, int *count_today_done) {
+    *count_today = 0;
+    *count_today_done = 0;
+    
+    //src:https://www.techiedelight.com/print-current-date-and-time-in-c/
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    
+    for (Task *pointer = session.data; pointer != NULL; pointer = pointer->next) {
+        if (pointer->due.y == tm.tm_year+1900 && pointer->due.m == tm.tm_mon+1 && pointer->due.d == tm.tm_mday) {
+            (*count_today)++;
+            if (pointer->done == true) {
+                (*count_today_done)++;
+            }
+        }
+    }
+    
+    if (*count_today == 0) {
+        return -1;
+    } else {
+        return round((double) *count_today_done / *count_today * 100);
+    }
+}
+
+bool find_next_task(void) {
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    
+    Date date_now = {tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday};
+    Task *next = NULL;
+    
+    for (Task *pointer = session.data; pointer != NULL; pointer = pointer->next) {
+        Date task_date = pointer->due;
+        
+        if (compare_dates(task_date, date_now) != -1) {
+            if (next == NULL) {
+                next = pointer;
+            } else {
+                int cmp = compare_dates(task_date, next->due);
+                if (cmp == 0) {
+                    if (strcmp(pointer->name, next->name) < 0) {
+                        next = pointer;
+                    }
+                } else if (cmp == -1) {
+                    next = pointer;
+                }
+            }
+        }
+    }
+    if (next == NULL) {
+        return false;
+    }
+    session.task = next;
     return true;
 }

@@ -2,6 +2,8 @@
 #include "uinterface.h"
 #include "navigation.h"
 
+#include "debugmalloc.h"
+
 int main() {
 
     Page next_page;
@@ -10,7 +12,6 @@ int main() {
     while (activeSession) {
         display(next_page);
         next_page = navigate(next_page);
-        
     }
 
     return 0;

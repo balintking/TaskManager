@@ -4,14 +4,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
+#include "navigation.h"
 #include "uinterface.h"
 #include "datahandler.h"
 
-
+/* src: https://www.geeksforgeeks.org/how-to-detect-operating-system-through-a-c-program/ */
 #ifdef __APPLE__
 #define PLATFORM 1
 #else
@@ -19,10 +18,11 @@
 #endif
 
 #define LEN_UNAME 10
+#define LEN_PW 15
 
 typedef struct Session {
     char user[LEN_UNAME+1];
-    char password[11];
+    char password[LEN_PW+1];
     char log[200];
     Task *data;
     Task *task;
@@ -32,15 +32,14 @@ extern bool activeSession;
 extern Session session;
 
 Page start_session(void);
-void end_session(void);
 void clear_session(void);
+void end_session(void);
 
 void get_username(void);
 void get_password(void);
-
 bool login_user(void);
 
-bool dir_init(char *dirname);
 bool file_init(char *fname);
+FILE *open_savefile(char *mode);
 
 #endif

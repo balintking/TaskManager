@@ -1,10 +1,11 @@
-
 #include "session.h"
-#include "navigation.h"
-#include "uinterface.h"
+#include "debugmalloc.h"
 
-bool activeSession = false;
+bool activeSession;
 Session session;
+
+
+//session handler
 
 Page start_session(){
     activeSession = true;
@@ -12,15 +13,17 @@ Page start_session(){
     return next_page;
 }
 
+void clear_session(void) {
+    session.user[0] = '\0';
+    session.password[0] = '\0';
+}
+
 void end_session() {
     activeSession = false;
 }
 
-void clear_session(void) {
-    session.user[0] = '\0';
-    session.password[0] = '\0';
-    free(session.task);
-}
+
+//user login
 
 void get_username(void) {
     scanf("%s", session.user);
@@ -28,27 +31,6 @@ void get_username(void) {
 
 void get_password(void) {
     scanf("%s", session.password);
-}
-
-bool dir_init(char *dirname) {
-    struct stat st = {0};
-    
-    if (stat(dirname, &st) == -1) {
-        if(mkdir(dirname, 0700) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool file_init(char *fname) {
-    FILE *file = fopen(fname, "a");
-    if (file==NULL) {
-        return false;
-    }
-    
-    fclose(file);
-    return true;
 }
 
 static bool register_user(char *fname) {
@@ -104,4 +86,34 @@ bool login_user(void) {
         strcpy(session.log, "Missing fields!");
         return false;
     }
+}
+
+
+//file handler
+
+bool file_init(char *fname) {
+    FILE *file = fopen(fname, "a");
+    if (file==NULL) {
+        return false;
+    }
+    
+    fclose(file);
+    return true;
+}
+
+FILE *open_savefile(char *mode) {
+    char filename[5+LEN_UNAME+4+1] = "save_";
+    strcat(filename, session.user);
+    strcat(filename, ".txt");
+    
+    if (!file_init(filename)) {
+        return NULL;
+    }
+    
+    FILE *savefile = fopen(filename, mode);
+    if (savefile == NULL) {
+        return NULL;
+    }
+    
+    return savefile;
 }
