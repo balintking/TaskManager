@@ -33,6 +33,8 @@ void print_tasks(void);
 bool valid_task(Task *task);
 Task* add_task(Task *data_start, Task *newTask);
 
+Task* remove_task(Task *data_start, Task *rmTask);
+
 bool load_data(void);
 
 bool save_data(void);
@@ -40,5 +42,6 @@ bool save_data(void);
 
 double percent_today(int *count_today, int *count_today_done);
 bool find_next_task(void);
+bool jump_seq(void);
 
 #endif

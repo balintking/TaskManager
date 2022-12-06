@@ -26,19 +26,20 @@ Task* task_init(void) {
 //display
 
 void print_tasks(void) {
-    Task *pointer = session.data;
-    while (pointer != NULL) {
-        printf("-\n");
-        printf("title: %s\n", pointer->name);
-        printf("due: %02d.%02d.%02d.\n", pointer->due.y, pointer->due.m, pointer->due.d);
-        printf("cat: %s\n", pointer->cat);
-        printf("dscr: %s\n", pointer->dscr);
-        if (pointer->done) {
-            printf("done: 1\n");
-        } else {
-            printf("done: 0\n");
-        }
-        printf("-\n");
+    Task *pointer = session.task;
+    int seq = 1;
+    while (pointer != NULL && seq <= 3) {
+        printf(" ┌────────────────────────\n");
+        
+        printf(" │ %s\n", pointer->name);
+        printf(" │ \tDue: \t%02d.%02d.%02d.\n", pointer->due.y, pointer->due.m, pointer->due.d);
+        printf(" │ \tCat: \t%s\n", pointer->cat);
+        printf(" │ \tInfo: \t%s\n", pointer->dscr);
+        (pointer->done) ? printf(" │ \tDone\n") : printf(" │ \tNot Done\n");
+        
+        printf(" │──────────┐\n");
+        printf(" │ [%d] Edit │\n", seq++);
+        printf(" └────────────────────────\n");
         
         pointer = pointer->next;
     }
@@ -74,6 +75,30 @@ Task* add_task(Task *data_start, Task *newTask) {
 
 
 //remove task
+
+Task* remove_task(Task *data_start, Task *rmTask) {
+    Task *prev = NULL;
+    Task *pointer = data_start;
+    
+    while (pointer != NULL && pointer != rmTask) {
+        prev = pointer;
+        pointer = pointer->next;
+    }
+    
+    if (pointer == NULL) {
+        strcpy(session.log, "Error while removing Task");
+        return data_start;
+    } else if (prev == NULL) {
+        data_start = pointer->next;
+        free(pointer);
+        strcpy(session.log, "Task Removed");
+    } else {
+        prev->next = pointer->next;
+        free(pointer);
+        strcpy(session.log, "Task Removed");
+    }
+    return data_start;
+}
 
 
 //load
@@ -230,4 +255,25 @@ bool find_next_task(void) {
     }
     session.task = next;
     return true;
+}
+
+bool jump_seq(void) {
+    Task *pointer = session.task;
+    if (pointer == NULL) {
+        return false;
+    }
+    int jumps = 0;
+    
+    for (int i = 0; i < 3; i++) {
+        if (pointer->next != NULL) {
+            pointer = pointer->next;
+            jumps++;
+        }
+    }
+    
+    if (jumps == 3) {
+        session.task = pointer;
+        return true;
+    }
+    return false;
 }

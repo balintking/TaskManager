@@ -10,8 +10,8 @@ typedef enum Page{
     login,
     dashboard,
     tasks,
-    single,
-    newTask,
+    edit,
+    create,
     logout
 } Page;
 

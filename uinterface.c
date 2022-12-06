@@ -67,17 +67,17 @@ static void display_tasks(void){
     }
     printf("\n\n");
 
-    printf("[0] Back\n");
+    printf("[0] ► Next\t\t\t[9] ⌂ Home\n");
     printf("\n");
 }
 
-static void display_single(void){
+static void display_edit(void) {
     printf("\n");
-    printf("CREATE NEW TASK");
+    printf("EDIT TASK");
     printf("\n\n");
     
     printf("[1] Title: %s\n", session.task->name);
-    printf("[2] Due Date: %d.%d.%d.\n", session.task->due.y, session.task->due.m, session.task->due.d);
+    printf("[2] Due Date: %02d.%02d.%02d.\n", session.task->due.y, session.task->due.m, session.task->due.d);
     printf("[3] Category: %s\n", session.task->cat);
     printf("[4] Description: %s\n", session.task->dscr);
     printf("[5] Done: ");
@@ -92,7 +92,29 @@ static void display_single(void){
     
     printf("[0] Save\t[9] Remove\n");
     printf("\n");
+}
 
+static void display_create(void){
+    printf("\n");
+    printf("CREATE NEW TASK");
+    printf("\n\n");
+    
+    printf("[1] Title: %s\n", session.task->name);
+    printf("[2] Due Date: %02d.%02d.%02d.\n", session.task->due.y, session.task->due.m, session.task->due.d);
+    printf("[3] Category: %s\n", session.task->cat);
+    printf("[4] Description: %s\n", session.task->dscr);
+    printf("[5] Done: ");
+    if (session.task->done) {
+        printf("Yes");
+    }
+    else {
+        printf("No");
+    }
+    printf("\n");
+    printf("\n");
+    
+    printf("[0] Save\t[9] Cancel\n");
+    printf("\n");
 }
 
 static void display_logout(void) {
@@ -127,11 +149,11 @@ void display(Page screen) {
         case tasks:
             display_tasks();
             break;
-        case single:
-            display_single();
+        case edit:
+            display_edit();
             break;
-        case newTask:
-            display_single();
+        case create:
+            display_create();
             break;
         case logout:
             display_logout();
