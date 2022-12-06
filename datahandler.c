@@ -4,6 +4,8 @@
 #include "debugmalloc.h"
 
 
+//others
+
 Task* task_init(void) {
     Task *task;
     task = (Task*) malloc(sizeof(Task));
@@ -20,6 +22,104 @@ Task* task_init(void) {
     task->done = false;
     
     return task;
+}
+
+int compare_dates(Date d1, Date d2) {
+    if (d1.y < d2.y)
+        return -1;
+    else if (d1.y > d2.y)
+        return 1;
+    else {
+         if (d1.m < d2.m)
+              return -1;
+         else if (d1.m > d2.m)
+              return 1;
+         else {
+             if (d1.d < d2.d)
+                 return -1;
+             else if(d1.d > d2.d)
+                 return 1;
+             else
+                 return 0;
+         }
+    }
+}
+
+double percent_today(int *count_today, int *count_today_done) {
+    *count_today = 0;
+    *count_today_done = 0;
+    
+    //src:https://www.techiedelight.com/print-current-date-and-time-in-c/
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    
+    for (Task *pointer = session.data; pointer != NULL; pointer = pointer->next) {
+        if (pointer->due.y == tm.tm_year+1900 && pointer->due.m == tm.tm_mon+1 && pointer->due.d == tm.tm_mday) {
+            (*count_today)++;
+            if (pointer->done == true) {
+                (*count_today_done)++;
+            }
+        }
+    }
+    
+    if (*count_today == 0) {
+        return -1;
+    } else {
+        return round((double) *count_today_done / *count_today * 100);
+    }
+}
+
+bool find_next_task(void) {
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    
+    Date date_now = {tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday};
+    Task *next = NULL;
+    
+    for (Task *pointer = session.data; pointer != NULL; pointer = pointer->next) {
+        Date task_date = pointer->due;
+        
+        if (compare_dates(task_date, date_now) != -1) {
+            if (next == NULL) {
+                next = pointer;
+            } else {
+                int cmp = compare_dates(task_date, next->due);
+                if (cmp == 0) {
+                    if (strcmp(pointer->name, next->name) < 0) {
+                        next = pointer;
+                    }
+                } else if (cmp == -1) {
+                    next = pointer;
+                }
+            }
+        }
+    }
+    if (next == NULL) {
+        return false;
+    }
+    session.task = next;
+    return true;
+}
+
+bool jump_seq(void) {
+    Task *pointer = session.task;
+    if (pointer == NULL) {
+        return false;
+    }
+    int jumps = 0;
+    
+    for (int i = 0; i < 3; i++) {
+        if (pointer->next != NULL) {
+            pointer = pointer->next;
+            jumps++;
+        }
+    }
+    
+    if (jumps == 3) {
+        session.task = pointer;
+        return true;
+    }
+    return false;
 }
 
 
@@ -84,8 +184,22 @@ Task* add_task(Task *data_start, Task *newTask) {
     strcpy(new->dscr, newTask->dscr);
     new->done = newTask->done;
     
-    new->next = data_start;
-    return new;
+    Task *prev = NULL;
+    Task *pointer = data_start;
+    
+    while (pointer != NULL && (compare_dates(pointer->due, new->due) > 0 || (compare_dates(pointer->due, new->due) == 0 && strcmp(pointer->name, new->name) < 0))) {
+        prev = pointer;
+        pointer = pointer->next;
+    }
+    
+    if (prev == NULL) {
+        new->next = data_start;
+        data_start = new;
+    } else {
+        prev->next = new;
+        new->next = pointer;
+    }
+    return data_start;
 }
 
 
@@ -191,104 +305,4 @@ bool save_data(void) {
     
     fclose(savefile);
     return true;
-}
-
-//others
-
-int compare_dates(Date d1, Date d2) {
-    if (d1.y < d2.y)
-        return -1;
-    else if (d1.y > d2.y)
-        return 1;
-    else {
-         if (d1.m<d2.m)
-              return -1;
-         else if (d1.m>d2.m)
-              return 1;
-         else {
-             if (d1.d<d2.d)
-                 return -1;
-             else if(d1.d>d2.d)
-                 return 1;
-             else
-                 return 0;
-         }
-    }
-}
-
-double percent_today(int *count_today, int *count_today_done) {
-    *count_today = 0;
-    *count_today_done = 0;
-    
-    //src:https://www.techiedelight.com/print-current-date-and-time-in-c/
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    
-    for (Task *pointer = session.data; pointer != NULL; pointer = pointer->next) {
-        if (pointer->due.y == tm.tm_year+1900 && pointer->due.m == tm.tm_mon+1 && pointer->due.d == tm.tm_mday) {
-            (*count_today)++;
-            if (pointer->done == true) {
-                (*count_today_done)++;
-            }
-        }
-    }
-    
-    if (*count_today == 0) {
-        return -1;
-    } else {
-        return round((double) *count_today_done / *count_today * 100);
-    }
-}
-
-bool find_next_task(void) {
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    
-    Date date_now = {tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday};
-    Task *next = NULL;
-    
-    for (Task *pointer = session.data; pointer != NULL; pointer = pointer->next) {
-        Date task_date = pointer->due;
-        
-        if (compare_dates(task_date, date_now) != -1) {
-            if (next == NULL) {
-                next = pointer;
-            } else {
-                int cmp = compare_dates(task_date, next->due);
-                if (cmp == 0) {
-                    if (strcmp(pointer->name, next->name) < 0) {
-                        next = pointer;
-                    }
-                } else if (cmp == -1) {
-                    next = pointer;
-                }
-            }
-        }
-    }
-    if (next == NULL) {
-        return false;
-    }
-    session.task = next;
-    return true;
-}
-
-bool jump_seq(void) {
-    Task *pointer = session.task;
-    if (pointer == NULL) {
-        return false;
-    }
-    int jumps = 0;
-    
-    for (int i = 0; i < 3; i++) {
-        if (pointer->next != NULL) {
-            pointer = pointer->next;
-            jumps++;
-        }
-    }
-    
-    if (jumps == 3) {
-        session.task = pointer;
-        return true;
-    }
-    return false;
 }
