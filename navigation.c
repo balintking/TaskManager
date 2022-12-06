@@ -71,7 +71,7 @@ Page navigate(Page screen){
                     case '3':
                         if (session.task->next != NULL) {
                             if (session.task->next->next != NULL)
-                            session.task = session.task->next;
+                            session.task = session.task->next->next;
                             return edit;
                         }
                         strcpy(session.log, "Invalid input!");

@@ -67,7 +67,7 @@ static void display_tasks(void){
     }
     printf("\n\n");
 
-    printf("[0] ► Next\t\t\t[9] ⌂ Home\n");
+    printf("[0] Next\t\t\t[9] Home\n");
     printf("\n");
 }
 

@@ -29,17 +29,32 @@ void print_tasks(void) {
     Task *pointer = session.task;
     int seq = 1;
     while (pointer != NULL && seq <= 3) {
-        printf(" ┌────────────────────────\n");
-        
-        printf(" │ %s\n", pointer->name);
-        printf(" │ \tDue: \t%04d.%02d.%02d.\n", pointer->due.y, pointer->due.m, pointer->due.d);
-        printf(" │ \tCat: \t%s\n", pointer->cat);
-        printf(" │ \tInfo: \t%s\n", pointer->dscr);
-        (pointer->done) ? printf(" │ \tDone\n") : printf(" │ \tNot Done\n");
-        
-        printf(" │──────────┐\n");
-        printf(" │ [%d] Edit │\n", seq++);
-        printf(" └────────────────────────\n");
+        if (PLATFORM == 1) {
+            printf(" ┌────────────────────────\n");
+
+            printf(" │ %s\n", pointer->name);
+            printf(" │ \tDue: \t%04d.%02d.%02d.\n", pointer->due.y, pointer->due.m, pointer->due.d);
+            printf(" │ \tCat: \t%s\n", pointer->cat);
+            printf(" │ \tInfo: \t%s\n", pointer->dscr);
+            (pointer->done) ? printf(" │ \tDone\n") : printf(" │ \tNot Done\n");
+
+            printf(" │──────────┐\n");
+            printf(" │ [%d] Edit │\n", seq++);
+            printf(" └────────────────────────\n");
+        }
+        else {
+            printf(" _________________________\n");
+
+            printf(" | %s\n", pointer->name);
+            printf(" | \tDue: \t%04d.%02d.%02d.\n", pointer->due.y, pointer->due.m, pointer->due.d);
+            printf(" | \tCat: \t%s\n", pointer->cat);
+            printf(" | \tInfo: \t%s\n", pointer->dscr);
+            (pointer->done) ? printf(" | \tDone\n") : printf(" | \tNot Done\n");
+
+            printf(" |__________\n");
+            printf(" | [%d] Edit |\n", seq++);
+            printf(" |________________________\n");
+        }
         
         pointer = pointer->next;
     }
