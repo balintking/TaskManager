@@ -8,8 +8,8 @@
 
 
 #define LEN_T_NAME 50
-#define LEN_T_CAT 25
-#define LEN_T_DSCR 200
+#define LEN_T_CAT 15
+#define LEN_T_DSCR 500
 
 typedef struct Date {
     int y;

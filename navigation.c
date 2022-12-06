@@ -62,11 +62,20 @@ Page navigate(Page screen){
                     case '1':
                         return edit;
                     case '2':
-                        session.task = session.task->next;
-                        return edit;
+                        if (session.task->next != NULL) {
+                            session.task = session.task->next;
+                            return edit;
+                        }
+                        strcpy(session.log, "Invalid input!");
+                        return screen;
                     case '3':
-                        session.task = session.task->next->next;
-                        return edit;
+                        if (session.task->next != NULL) {
+                            if (session.task->next->next != NULL)
+                            session.task = session.task->next;
+                            return edit;
+                        }
+                        strcpy(session.log, "Invalid input!");
+                        return screen;
                     case '9':
                         return dashboard;
                     default:
@@ -99,7 +108,7 @@ Page navigate(Page screen){
                         }
                         return screen;
                     case '3':
-                        printf("(Maximum 25 characters) ");
+                        printf("(Maximum 15 characters) ");
                         char incat[LEN_T_CAT];
                         scanf(" %[^\n]s", incat);
                         if (strchr(incat, '*') == NULL) {
@@ -109,7 +118,7 @@ Page navigate(Page screen){
                         }
                         return screen;
                     case '4':
-                        printf("(Maximum 200 characters) ");
+                        printf("(Maximum 500 characters) ");
                         char indscr[LEN_T_DSCR];
                         scanf(" %[^\n]s", indscr);
                         if (strchr(indscr, '*') == NULL) {
@@ -172,7 +181,7 @@ Page navigate(Page screen){
                         }
                         return screen;
                     case '3':
-                        printf("(Maximum 25 characters) ");
+                        printf("(Maximum 15 characters) ");
                         char incat[LEN_T_CAT];
                         scanf(" %[^\n]s", incat);
                         if (strchr(incat, '*') == NULL) {
@@ -182,7 +191,7 @@ Page navigate(Page screen){
                         }
                         return screen;
                     case '4':
-                        printf("(Maximum 200 characters) ");
+                        printf("(Maximum 500 characters) ");
                         char indscr[LEN_T_DSCR];
                         scanf(" %[^\n]s", indscr);
                         if (strchr(indscr, '*') == NULL) {

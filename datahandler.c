@@ -32,7 +32,7 @@ void print_tasks(void) {
         printf(" ┌────────────────────────\n");
         
         printf(" │ %s\n", pointer->name);
-        printf(" │ \tDue: \t%02d.%02d.%02d.\n", pointer->due.y, pointer->due.m, pointer->due.d);
+        printf(" │ \tDue: \t%04d.%02d.%02d.\n", pointer->due.y, pointer->due.m, pointer->due.d);
         printf(" │ \tCat: \t%s\n", pointer->cat);
         printf(" │ \tInfo: \t%s\n", pointer->dscr);
         (pointer->done) ? printf(" │ \tDone\n") : printf(" │ \tNot Done\n");

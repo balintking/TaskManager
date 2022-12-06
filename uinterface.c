@@ -48,7 +48,7 @@ static void display_dashboard(void){
     printf("\n");
     
     if(find_next_task()) {
-        printf("Next Task:\t[3] %s\n\t\t    %02d.%02d.%02d.\n\t\t    %s\n", session.task->name, session.task->due.y, session.task->due.m, session.task->due.d, session.task->cat);
+        printf("Next Task:\t[3] %s\n\t\t    %04d.%02d.%02d.\n\t\t    %s\n", session.task->name, session.task->due.y, session.task->due.m, session.task->due.d, session.task->cat);
     }
     printf("\n\n\n\n");
     
@@ -77,7 +77,7 @@ static void display_edit(void) {
     printf("\n\n");
     
     printf("[1] Title: %s\n", session.task->name);
-    printf("[2] Due Date: %02d.%02d.%02d.\n", session.task->due.y, session.task->due.m, session.task->due.d);
+    printf("[2] Due Date: %04d.%02d.%02d.\n", session.task->due.y, session.task->due.m, session.task->due.d);
     printf("[3] Category: %s\n", session.task->cat);
     printf("[4] Description: %s\n", session.task->dscr);
     printf("[5] Done: ");
@@ -100,7 +100,7 @@ static void display_create(void){
     printf("\n\n");
     
     printf("[1] Title: %s\n", session.task->name);
-    printf("[2] Due Date: %02d.%02d.%02d.\n", session.task->due.y, session.task->due.m, session.task->due.d);
+    printf("[2] Due Date: %04d.%02d.%02d.\n", session.task->due.y, session.task->due.m, session.task->due.d);
     printf("[3] Category: %s\n", session.task->cat);
     printf("[4] Description: %s\n", session.task->dscr);
     printf("[5] Done: ");
@@ -122,8 +122,8 @@ static void display_logout(void) {
     printf("LOG OUT");
     printf("\n\n");
     
-    printf("[1] Log out\n");
-    printf("[2] Close application\n");
+    printf("[1] Save & Log out\n");
+    printf("[2] Save & Close application\n");
     printf("\n");
     printf("[9] Cancel\n");
     printf("\n");
